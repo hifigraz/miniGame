@@ -1,4 +1,5 @@
 import pygame
+import random
 
 # """ Some constants """
 
@@ -8,6 +9,7 @@ RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 WHITE = (255, 255, 255)
 GRAY = (128, 128, 128)
+YELLOW = (255, 255, 0)
 
 class GameState:
     """ Holding game state relevant data """
@@ -68,11 +70,14 @@ class Bot(Drawable):
 
 class Human(Drawable):
     """ a human """
+    player_count = 0
     def __init__(self, game_state, color, direction, position, keys):
         """ constructor """
         Drawable.__init__(self, game_state, color, direction, position)
         self._keys = keys
         self.score = 0
+        self._player_number = Human.player_count
+        Human.player_count += 1
 
     def move(self):
         """ move method """
@@ -104,8 +109,9 @@ class Human(Drawable):
 
     def draw(self):
         Drawable.draw(self)
-        text = self._game_state.font.render("Human: %d" % self.score, False, WHITE)
-        self._game_state.screen.blit(text, (10,10))
+        text = self._game_state.font.render("Player %d: %d" % (self._player_number, self.score), False, WHITE)
+        position = (text.get_height(), text.get_height()*self._player_number*1.2)
+        self._game_state.screen.blit(text, position)
 
 def init():
     """ All initialisation stuff goes in here """
@@ -152,6 +158,8 @@ def loop(game_state):
         Bot(game_state, RED, [-1, -1], (game_state.size[0]/3*2, game_state.size[1]/3*2)),
         Human(game_state, GRAY, [0, 0], (game_state.size[0]/3, game_state.size[1]/2),
               (pygame.K_a, pygame.K_d, pygame.K_w, pygame.K_s, pygame.K_SPACE)),
+        Human(game_state, YELLOW, [0, 0], (game_state.size[0]/3*2, game_state.size[1]/2),
+              (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_RETURN)),
         ]
     while handle_events(game_state):
         blank_screen(game_state)
@@ -159,6 +167,26 @@ def loop(game_state):
             figure.draw()
 
         check_collision(game_state)
+
+        bots = 0
+        for figure in game_state.figures:
+            if type(figure) == Bot:
+                bots += 1
+
+        if bots == 0:
+            colors = [GREEN, RED]
+            speeds = [-1, 1]
+
+            color = colors[randint(0,1)]
+            speed = [speeds[random.randint(0,1)], speeds[random.randint(0,1)]]
+            position = (random.randint(10, game_state.size[0]-10),
+                        random.randint(10, game_state.size[1]-10))
+
+            game_state.figures.append(
+                Bot(game_state,
+                    color,
+                    speed,
+                    position))
 
         pygame.display.flip()
         game_state.clock.tick(160)
