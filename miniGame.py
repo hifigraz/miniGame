@@ -49,6 +49,10 @@ class Drawable:
     def move(self):
         """ not implemented """
 
+    def collided(self, other):
+        """ check for collision """
+        return self._rect.colliderect(other._rect)
+
 
 class Bot(Drawable):
     """ a single bot """
@@ -117,6 +121,23 @@ def handle_events(game_state):
     return True
 
 
+def check_collision(game_state):
+    to_del = []
+    for figure1 in game_state.figures:
+        if type(figure1) == Bot:
+            continue
+        for figure2 in game_state.figures:
+            if type(figure2) == Human:
+                continue
+            if figure1 == figure2:
+                continue
+            if figure1.collided(figure2):
+                to_del.append(figure2)
+
+    for to_be_removed in to_del:
+        game_state.figures.remove(to_be_removed)
+
+
 def loop(game_state):
     """ main loop in here """
     game_state.figures = [
@@ -129,6 +150,8 @@ def loop(game_state):
         blank_screen(game_state)
         for figure in game_state.figures:
             figure.draw()
+
+        check_collision(game_state)
 
         pygame.display.flip()
         game_state.clock.tick(160)
