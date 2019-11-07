@@ -109,7 +109,8 @@ class Human(Drawable):
 
     def draw(self):
         Drawable.draw(self)
-        text = self._game_state.font.render("Player %d: %d" % (self._player_number, self.score), False, WHITE)
+        text = self._game_state.font.render("Player %d: %d" % (self._player_number, self.score),
+                                            False, WHITE)
         position = (text.get_height(), text.get_height()*self._player_number*1.2)
         self._game_state.screen.blit(text, position)
 
@@ -134,18 +135,19 @@ def handle_events(game_state):
 
 
 def check_collision(game_state):
+    """ check for colision between figures """
     to_del = []
     for figure1 in game_state.figures:
-        if type(figure1) == Bot:
+        if isinstance(figure1, Bot):
             continue
         for figure2 in game_state.figures:
-            if type(figure2) == Human:
+            if isinstance(figure2, Human):
                 continue
             if figure1 == figure2:
                 continue
             if figure1.collided(figure2):
                 to_del.append(figure2)
-                figure1.score+=1
+                figure1.score += 1
 
     for to_be_removed in to_del:
         game_state.figures.remove(to_be_removed)
@@ -170,15 +172,15 @@ def loop(game_state):
 
         bots = 0
         for figure in game_state.figures:
-            if type(figure) == Bot:
+            if isinstance(figure, Bot):
                 bots += 1
 
         if bots == 0:
             colors = [GREEN, RED]
             speeds = [-1, 1]
 
-            color = colors[randint(0,1)]
-            speed = [speeds[random.randint(0,1)], speeds[random.randint(0,1)]]
+            color = colors[random.randint(0, 1)]
+            speed = [speeds[random.randint(0, 1)], speeds[random.randint(0, 1)]]
             position = (random.randint(10, game_state.size[0]-10),
                         random.randint(10, game_state.size[1]-10))
 
