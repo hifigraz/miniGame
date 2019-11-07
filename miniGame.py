@@ -24,6 +24,7 @@ class GameState:
         self.screen = pygame.display.set_mode(self.size)
         self.clock = pygame.time.Clock()
         self.figures = []
+        self.font = myfont = pygame.font.SysFont('Comic Sans MS', 30)
 
 
 class Drawable:
@@ -71,6 +72,7 @@ class Human(Drawable):
         """ constructor """
         Drawable.__init__(self, game_state, color, direction, position)
         self._keys = keys
+        self.score = 0
 
     def move(self):
         """ move method """
@@ -100,6 +102,10 @@ class Human(Drawable):
         while self._rect.bottom > self._game_state.size[1]:
             self._rect = self._rect.move(0, -1)
 
+    def draw(self):
+        Drawable.draw(self)
+        text = self._game_state.font.render("Human: %d" % self.score, False, WHITE)
+        self._game_state.screen.blit(text, (10,10))
 
 def init():
     """ All initialisation stuff goes in here """
@@ -133,6 +139,7 @@ def check_collision(game_state):
                 continue
             if figure1.collided(figure2):
                 to_del.append(figure2)
+                figure1.score+=1
 
     for to_be_removed in to_del:
         game_state.figures.remove(to_be_removed)
@@ -143,7 +150,7 @@ def loop(game_state):
     game_state.figures = [
         Bot(game_state, GREEN, [1, 1], (game_state.size[0]/3, game_state.size[1]/3)),
         Bot(game_state, RED, [-1, -1], (game_state.size[0]/3*2, game_state.size[1]/3*2)),
-        Human(game_state, GRAY, [0, 0], (game_state.size[0]/2, game_state.size[1]/2),
+        Human(game_state, GRAY, [0, 0], (game_state.size[0]/3, game_state.size[1]/2),
               (pygame.K_a, pygame.K_d, pygame.K_w, pygame.K_s, pygame.K_SPACE)),
         ]
     while handle_events(game_state):
